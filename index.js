@@ -8,7 +8,7 @@ const Directors = Models.Director;
   {useNewUrlParser: true, useUnifiedTopology: true}); */
 
 
-  mongoose.connect(process.env.CONNECTION_URI, 
+  mongoose.connect(process.env.CONNECTION_URI,  
   {useNewUrlParser: true, useUnifiedTopology: true});  
 const express = require('express');
 const { check, validationResult } = require('express-validator');
