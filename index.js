@@ -5,7 +5,7 @@ const Users = Models.User;
 const Genres = Models.Genre; 
 const Directors = Models.Director; 
 /*  mongoose.connect('mongodb://localhost:27017/myFlexDB', 
-  {useNewUrlParser: true, useUnifiedTopology: true});  */
+  {useNewUrlParser: true, useUnifiedTopology: true});   */
 
 
    mongoose.connect(process.env.CONNECTION_URI,  
@@ -43,7 +43,7 @@ const app = express();
 
 // GET requests 
 app.get('/', (req, res) => {
-  res.send('Welcome to my movie club!');
+  res.sendFile('public/index.html', {root:__dirname});
 });
 
 app.get('/documentation', (req, res) => {                  
@@ -210,15 +210,18 @@ app.post('/users',
   // update user's info, by username
 
   app.put('/users/:Username',passport.authenticate('jwt', {session:false}) , (req, res) => {
+    let hashedPassword = Users.hashPassword(req.body.Password);
+    if(req.user.Username === req.params.Username){ 
     Users.findOneAndUpdate({ Username: req.params.Username }, { $set:
+      
       {
         Username: req.body.Username,
-        Password: req.body.Password,
+        Password: hashedPassword,
         Email: req.body.Email,
         Birthday: req.body.Birthday
       }
     },
-    { new: true },
+    { new: true },  
     (err, updatedUser) => {
       if(err) {
         console.error(err);
@@ -227,7 +230,10 @@ app.post('/users',
         res.json(updatedUser);
       }
     });
-  });
+	} else console.log('you cant update another user!')}
+  );
+
+
 
   // Add a movie to a user's list of favorites 
   app.post('/users/:Username/movies/:movieId', passport.authenticate('jwt', {session:false}) , (req, res) => {
@@ -270,6 +276,8 @@ app.post('/users',
   // Delete a user by username 
 
   app.delete('/users/:Username', passport.authenticate('jwt', {session:false}) , (req, res) => {
+
+    if(req.user.Username === req.params.Username) {
     Users.findOneAndRemove({
       Username: req.params.Username
     })
@@ -283,7 +291,11 @@ app.post('/users',
       console.error(err); 
       res.status(500).send('Error: ' + err); 
     }); 
-  });
+  }
+  else console.log('you cant deleted another user ');x  
+}
+  
+  );
 
 
 
