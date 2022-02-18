@@ -1,15 +1,16 @@
+
 const mongoose = require('mongoose'); 
 const Models = require('./models.js');
 const Movies = Models.Movie;
 const Users = Models.User; 
 const Genres = Models.Genre; 
 const Directors = Models.Director; 
-/*  mongoose.connect('mongodb://localhost:27017/myFlexDB', 
-  {useNewUrlParser: true, useUnifiedTopology: true});   */
+//  mongoose.connect('mongodb://localhost:27017/myFlexDB', 
+//   {useNewUrlParser: true, useUnifiedTopology: true});  
 
 
-   mongoose.connect(process.env.CONNECTION_URI,  
-   {useNewUrlParser: true, useUnifiedTopology: true});  
+    mongoose.connect(process.env.CONNECTION_URI,  
+    {useNewUrlParser: true, useUnifiedTopology: true});  
 const express = require('express');
 const { check, validationResult } = require('express-validator');
 
@@ -100,11 +101,12 @@ app.post("/movies", passport.authenticate('jwt', {session:false}) ,(req, res)=> 
 // delete a movie by ID 
 app.delete('/movies/:MovieID', passport.authenticate('jwt', {session:false}) ,(req, res) => {
   Movies.findOneAndRemove({
-    MovieID: req.params.MovieID
+    _id: req.params.MovieID
   })
   .then((movie) => {
     if(!movie){
       res.status(400).send(req.params.MovieID + ' was not found '); 
+     
     } else {
       res.status(200).send(req.params.MovieID + ' was deleted.'); 
     }
@@ -162,7 +164,7 @@ app.post('/users',
       .then((user) => {
         if (user) {
           //If the user is found, send a response that it already exists
-          return res.status(400).send(req.body.Username + ' already exists');
+          return res.status(400).send(req.body.Username + 'already exists');
         } else {
           Users
             .create({
@@ -230,7 +232,12 @@ app.post('/users',
         res.json(updatedUser);
       }
     });
-	} else console.log('you cant update another user!')}
+	} else 
+  {
+    console.error(err);
+        res.status(500).send('Error: ' + err);
+  }
+  }
   );
 
 
@@ -288,11 +295,15 @@ app.post('/users',
         res.status(200).send(req.params.Username + ' was deleted.'); 
       }
     }).catch((err) => {
-      console.error(err); 
       res.status(500).send('Error: ' + err); 
+      console.error(err); 
+     
     }); 
   }
-  else console.log('you cant deleted another user ');x  
+  else {
+    console.error(err); 
+      res.status(500).send('Error: ' + err); 
+    console.log('you cant deleted another user ');}  
 }
   
   );
@@ -306,9 +317,7 @@ let myLogger = (req, res, next)=> {
 };
 app.use(myLogger);
 
-app.get('/secreturl', (req,res)=> {
-  res.send('this is super top content');
-});
+
 
 app.use(express.static('public'));
 
